@@ -1,0 +1,75 @@
+# Add directories or file patterns to ignore during indexing (e.g. foo/ or *.csv)
+# ... existing code ...
+# 忽略 Git 仓库
+.git/
+
+# Node.js 依赖
+node_modules/
+
+# 构建输出目录
+dist/
+build/
+
+# Python 虚拟环境
+venv/
+.venv/
+env/
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# Java 构建目录
+target/
+
+# .NET 构建目录
+bin/
+obj/
+
+# Rust 构建目录
+target/
+
+# Go 依赖目录
+vendor/
+
+# 测试覆盖率报告
+coverage/
+
+# 编辑器配置
+.vscode/
+.idea/
+
+# 日志文件
+*.log
+
+# 临时文件
+tmp/
+temp/
+
+# macOS 系统文件
+.DS_Store
+
+# 环境变量文件
+*.env
+
+# 锁文件
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# 数据库文件
+*.sqlite
+
+# 媒体及压缩文件
+*.zip
+*.rar
+*.iso
+*.mp4
+*.mp3
+*.avi
+*.mov
+*.gif
+*.png
+*.jpg
+*.jpeg
+*.webp
