@@ -154,6 +154,11 @@ const styles = {
     fontSize: '18px',
     display: 'flex',
     alignItems: 'center',
+    flex: '1 1 auto',       // 允许 flex 项缩放
+    minWidth: 0,            // 保证最小宽度为 0，才能生效溢出隐藏
+    whiteSpace: 'nowrap',   // 禁止换行
+    overflow: 'hidden',     // 超出隐藏
+    textOverflow: 'ellipsis', // 溢出用省略号
   },
   cityPairIcon: {
     marginRight: '8px',
@@ -198,6 +203,9 @@ const styles = {
     color: '#4B5563',
     fontSize: '18px',
     fontWeight: '500',
+    whiteSpace: 'nowrap',   // 禁止换行
+    overflow: 'hidden',     // 超出隐藏
+    textOverflow: 'ellipsis', // 溢出用省略号
   },
   resultContainer: {
     padding: '24px',
@@ -595,8 +603,8 @@ function CityGame() {
     return (
       <div style={{
         ...styles.cityPairsContainer,
-        flexDirection: isMobile ? 'row' : styles.cityPairsContainer.flexDirection,
-        overflowX: isMobile ? 'auto' : 'visible',
+        flexDirection: "column", // 始终使用纵向排列
+        overflowX: "visible",
       }}>
         {cityPairs.map((pair, index) => {
           const isNearest = nearestGuess && pair.cities.every(city => nearestGuess.cities.includes(city));
