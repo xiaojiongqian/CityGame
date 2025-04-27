@@ -1,0 +1,13 @@
+  // 渲染猜测状态
+  const renderGuesses = () => {
+    return (
+      <div style={styles.guessContainer}>
+        <div style={
+          nearestGuess
+            ? {...styles.guessBox, ...styles.guessBoxFilled}
+            : styles.guessPrompt
+        }>
+          <div style={styles.guessType}>
+            <MapPin size={18} style={{marginRight: "6px", display: "inline"}} />
+            最近的城市对
+          </div>

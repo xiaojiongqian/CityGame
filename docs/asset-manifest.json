@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/CityGame/static/css/main.28892ef1.css",
+    "main.js": "/CityGame/static/js/main.a9b6669e.js",
+    "static/js/453.08945947.chunk.js": "/CityGame/static/js/453.08945947.chunk.js",
+    "index.html": "/CityGame/index.html",
+    "main.28892ef1.css.map": "/CityGame/static/css/main.28892ef1.css.map",
+    "main.a9b6669e.js.map": "/CityGame/static/js/main.a9b6669e.js.map",
+    "453.08945947.chunk.js.map": "/CityGame/static/js/453.08945947.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.28892ef1.css",
+    "static/js/main.a9b6669e.js"
+  ]
+}
