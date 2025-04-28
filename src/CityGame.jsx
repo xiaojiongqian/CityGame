@@ -2,16 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Navigation } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import './styles/animations.css';
 
-// 导入服务和组件
 import { 
   getRandomCities, 
   calculateDirectDistance,
   cityCoordinates
 } from './services/cityData';
 import GameMap from './components/GameMap';
+import GameHeader from './components/GameHeader';
+import GameContent from './components/GameContent';
+import GameResults from './components/GameResults';
 
-// 样式
 const styles = {
   container: {
     minHeight: '100vh',
@@ -336,9 +338,7 @@ const styles = {
   },
 };
 
-// 主游戏组件
 function CityGame() {
-  // 响应式检测
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -355,7 +355,6 @@ function CityGame() {
   const [nearestGuess, setNearestGuess] = useState(null);
   const [farthestGuess, setFarthestGuess] = useState(null);
   
-  // 添加日志
   const addLog = (message, type = 'info') => {
     const now = new Date();
     const timestamp = now.toLocaleTimeString();
@@ -364,7 +363,6 @@ function CityGame() {
     console[type === 'error' ? 'error' : 'log'](`[${timestamp}] ${message}`);
   };
   
-  // 生成城市对
   const generateCityPairs = (selectedCities) => {
     const pairs = [];
     for (let i = 0; i < selectedCities.length; i++) {
@@ -381,18 +379,16 @@ function CityGame() {
     return pairs;
   };
   
-  // 开始游戏
   const startGame = () => {
     setIsLoading(true);
     setGameResult(null);
-    setNearestGuess(null);  // 重置最近城市对选择
-    setFarthestGuess(null); // 重置最远城市对选择
+    setNearestGuess(null);
+    setFarthestGuess(null);
     
     try {
       addLog('开始新游戏');
       console.log('开始新游戏');
       
-      // 从城市数据中获取三个随机城市
       const randomCities = getRandomCities(3);
       console.log('随机选择的城市:', randomCities);
       
@@ -403,7 +399,6 @@ function CityGame() {
       setCities(randomCities);
       addLog(`已选择城市: ${randomCities.join(', ')}`);
       
-      // 生成所有可能的城市对并计算距离
       const pairs = generateCityPairs(randomCities);
       
       if (!pairs || pairs.length === 0) {
@@ -412,13 +407,11 @@ function CityGame() {
       
       setCityPairs(pairs);
       
-      // 记录每个城市对的距离
       pairs.forEach(pair => {
         const [city1, city2] = pair.cities;
         addLog(`${city1} 到 ${city2} 的距离: ${pair.distance.toFixed(1)} 公里`);
       });
       
-      // 直接设置加载完成，不依赖地图回调
       console.log('游戏数据准备完成，结束加载');
       setIsLoading(false);
       
@@ -429,43 +422,36 @@ function CityGame() {
     }
   };
   
-  // 自动开始游戏
   useEffect(() => {
     startGame();
   }, []);
   
-  // 处理地图加载消息 (不再控制加载状态)
   const handleMapMessage = (message) => {
     addLog(message);
     console.log('地图消息:', message);
   };
   
-  // 处理地图错误 (不再控制加载状态)
   const handleMapError = (error) => {
     addLog(error, 'error');
     console.error('地图错误:', error);
   };
   
-  // 处理猜测最近的一对城市
   const handleNearestGuess = (pair) => {
     if (gameResult) return;
     setNearestGuess(pair);
   };
   
-  // 处理猜测最远的一对城市
   const handleFarthestGuess = (pair) => {
     if (gameResult) return;
     setFarthestGuess(pair);
   };
   
-  // 提交猜测
   const submitGuess = () => {
     if (!nearestGuess || !farthestGuess) {
       addLog('请先选择最近和最远的城市对', 'error');
       return;
     }
     
-    // 按距离排序城市对
     const sortedPairs = [...cityPairs].sort((a, b) => a.distance - b.distance);
     const actualNearest = sortedPairs[0];
     const actualFarthest = sortedPairs[sortedPairs.length - 1];
@@ -476,7 +462,6 @@ function CityGame() {
     const farthestCorrect = farthestGuess.cities.every(city => 
       actualFarthest.cities.includes(city));
     
-    // 设置游戏结果
     setGameResult({
       success: nearestCorrect && farthestCorrect,
       nearestCorrect,
@@ -494,16 +479,13 @@ function CityGame() {
     }
   };
   
-  // 重新开始游戏
   const resetGame = () => {
-    // 强制清除所有单选按钮的选中状态
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
       radio.checked = false;
     });
     startGame();
   };
   
-  // 获取城市对状态类
   const getCityPairClassName = (pair) => {
     const isNearest = nearestGuess && pair.cities.every(city => nearestGuess.cities.includes(city));
     const isFarthest = farthestGuess && pair.cities.every(city => farthestGuess.cities.includes(city));
@@ -528,193 +510,31 @@ function CityGame() {
     return {...styles.cityPair, ...styles.cityPairSelected};
   };
   
-  // 复制日志到剪贴板
   const copyLogs = () => {
     const logsText = logs.map(log => `[${log.timestamp}] ${log.message}`).join('\n');
     navigator.clipboard.writeText(logsText);
     addLog('日志已复制到剪贴板');
   };
   
-  // 渲染猜测状态
-  const renderGuesses = () => {
-    return (
-      <div style={styles.guessContainer}>
-        <div style={
-          nearestGuess
-            ? {...styles.guessBox, ...styles.guessBoxFilled}
-            : styles.guessPrompt
-        }>
-          <div style={styles.guessType}>
-            <MapPin size={18} style={{marginRight: '6px', display: 'inline'}} />
-            最近的城市对
-          </div>
-          <div style={styles.guessValue}>
-            {nearestGuess ? nearestGuess.cities.join(' - ') : '请选择'}
-          </div>
-        </div>
-        <div style={
-          farthestGuess
-            ? {...styles.guessBox, ...styles.guessBoxFilled}
-            : styles.guessPrompt
-        }>
-          <div style={styles.guessType}>
-            <Navigation size={18} style={{marginRight: '6px', display: 'inline'}} />
-            最远的城市对
-          </div>
-          <div style={styles.guessValue}>
-            {farthestGuess ? farthestGuess.cities.join(' - ') : '请选择'}
-          </div>
-        </div>
-      </div>
-    );
-  };
-  
-  // 渲染加载状态
   const renderLoading = () => {
-    if (!isLoading) return null;
-    
     return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.loadingSpinner} />
-        <div style={styles.loadingText}>正在准备城市数据...</div>
+      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px 0'}}>
+        <div style={{position: 'relative', width: '40px', height: '40px', marginBottom: '20px'}}>
+          <div style={{
+            position: 'absolute',
+            border: '4px solid rgba(79, 70, 229, 0.1)',
+            borderRadius: '50%',
+            borderTop: '4px solid #4F46E5',
+            width: '40px',
+            height: '40px',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+        </div>
+        <div style={{color: '#6B7280', fontSize: '18px', animation: 'pulse 1.5s infinite ease-in-out'}}>正在初始化游戏...</div>
       </div>
     );
   };
   
-  // 渲染结果
-  const renderResult = () => {
-    if (!gameResult) return null;
-    
-    return (
-      <div style={{
-        ...styles.resultContainer, 
-        ...(gameResult.success ? styles.resultSuccess : styles.resultError)
-      }}>
-        <div style={styles.resultText}>
-          {gameResult.success ? '🎉 恭喜，你答对了！' : '😕 很遗憾，有错误！'}
-        </div>
-        <div style={styles.resultDetails}>
-          {!gameResult.nearestCorrect && (
-            <div>最近的城市对是: {gameResult.actualNearest.cities.join(' 和 ')} 
-              <strong>({gameResult.actualNearest.distance.toFixed(1)} 公里)</strong>
-            </div>
-          )}
-          {!gameResult.farthestCorrect && (
-            <div>最远的城市对是: {gameResult.actualFarthest.cities.join(' 和 ')} 
-              <strong>({gameResult.actualFarthest.distance.toFixed(1)} 公里)</strong>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-  
-  // 渲染城市对
-  const renderCityPairs = () => {
-    if (!cityPairs.length) return null;
-    return (
-      <div style={{ ...styles.cityPairsContainer, flexDirection: "column", overflowX: "visible" }}>
-        <div style={{marginBottom: '14px'}}>
-          <div style={{fontWeight: 'bold', color: '#4F46E5', marginBottom: '8px', fontSize: '18px', letterSpacing: '1px'}}>请选择最近的城市对：</div>
-          <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
-            {cityPairs.map((pair, idx) => {
-              const isSelected = nearestGuess && pair.cities.every(city => nearestGuess.cities.includes(city));
-              const isDisabled = !!gameResult;
-              return (
-                <label key={"nearest-"+idx} style={{
-                  ...styles.cityPair,
-                  ...(isSelected ? styles.cityPairSelected : {}),
-                  ...(gameResult && isSelected ? (gameResult.nearestCorrect ? styles.cityPairCorrect : styles.cityPairIncorrect) : {}),
-                  opacity: isDisabled && !isSelected ? 0.6 : 1,
-                  pointerEvents: isDisabled ? 'none' : 'auto',
-                  borderWidth: isSelected ? 2 : 1,
-                  borderColor: isSelected ? '#4F46E5' : '#E2E8F0',
-                  background: isSelected ? 'linear-gradient(90deg, #f5f7fa 60%, #e0e7ff 100%)' : 'white',
-                  transition: 'all 0.2s',
-                  boxShadow: isSelected ? '0 4px 16px rgba(79,70,229,0.08)' : styles.cityPair.boxShadow
-                }}>
-                  <input
-                    type="radio"
-                    name="nearestPair"
-                    disabled={isDisabled}
-                    checked={isSelected}
-                    onChange={() => { if (!gameResult) handleNearestGuess(pair); }}
-                    style={{marginRight: '12px', accentColor: '#4F46E5', width: '18px', height: '18px'}}
-                  />
-                  <span style={styles.cityPairNames}>{pair.cities.join(' - ')}</span>
-                  {gameResult && (
-                    <span style={styles.cityPairDistance}>{pair.distance.toFixed(1)} 公里</span>
-                  )}
-                </label>
-              );
-            })}
-          </div>
-        </div>
-        <div>
-          <div style={{fontWeight: 'bold', color: '#EF4444', marginBottom: '8px', fontSize: '18px', letterSpacing: '1px'}}>请选择最远的城市对：</div>
-          <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
-            {cityPairs.map((pair, idx) => {
-              const isSelected = farthestGuess && pair.cities.every(city => farthestGuess.cities.includes(city));
-              const isDisabled = !!gameResult;
-              return (
-                <label key={"farthest-"+idx} style={{
-                  ...styles.cityPair,
-                  ...(isSelected ? styles.cityPairSelected : {}),
-                  ...(gameResult && isSelected ? (gameResult.farthestCorrect ? styles.cityPairCorrect : styles.cityPairIncorrect) : {}),
-                  opacity: isDisabled && !isSelected ? 0.6 : 1,
-                  pointerEvents: isDisabled ? 'none' : 'auto',
-                  borderWidth: isSelected ? 2 : 1,
-                  borderColor: isSelected ? '#EF4444' : '#E2E8F0',
-                  background: isSelected ? 'linear-gradient(90deg, #fef2f2 60%, #fee2e2 100%)' : 'white',
-                  transition: 'all 0.2s',
-                  boxShadow: isSelected ? '0 4px 16px rgba(239,68,68,0.08)' : styles.cityPair.boxShadow
-                }}>
-                  <input
-                    type="radio"
-                    name="farthestPair"
-                    disabled={isDisabled}
-                    checked={isSelected}
-                    onChange={() => { if (!gameResult) handleFarthestGuess(pair); }}
-                    style={{marginRight: '12px', accentColor: '#EF4444', width: '18px', height: '18px'}}
-                  />
-                  <span style={styles.cityPairNames}>{pair.cities.join(' - ')}</span>
-                  {gameResult && (
-                    <span style={styles.cityPairDistance}>{pair.distance.toFixed(1)} 公里</span>
-                  )}
-                </label>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    );
-  };
-  
-  // 渲染调试面板
-  const renderDebugPanel = () => {
-    if (!debugVisible) return null;
-    
-    return (
-      <div style={styles.debugPanel}>
-        <div style={styles.debugHeader}>
-          <div style={styles.debugTitle}>调试日志</div>
-          <button 
-            style={styles.copyButton}
-            onClick={copyLogs}
-          >
-            复制
-          </button>
-        </div>
-        {logs.map((log, index) => (
-          <div key={index} style={{ color: log.type === 'error' ? '#EF4444' : '#F3F4F6' }}>
-            [{log.timestamp}] {log.message}
-          </div>
-        ))}
-      </div>
-    );
-  };
-  
-  // 渲染地图
   const renderMap = () => {
     if (!cities.length) return null;
     
@@ -753,6 +573,10 @@ function CityGame() {
   return (
     <div style={styles.container}>
       <div style={styles.gameContainer}>
+        <GameHeader
+          isMobile={isMobile}
+          styles={styles}
+        />
         
         <div style={styles.card}>
           {isLoading ? (
@@ -761,153 +585,35 @@ function CityGame() {
             <>
               {renderMap()}
               
-              {renderCityPairs()}
-              {renderResult()}
+              <GameContent
+                cityPairs={cityPairs}
+                nearestGuess={nearestGuess}
+                farthestGuess={farthestGuess}
+                gameResult={gameResult}
+                handleNearestGuess={handleNearestGuess}
+                handleFarthestGuess={handleFarthestGuess}
+                submitGuess={submitGuess}
+                resetGame={resetGame}
+                styles={styles}
+                isMobile={isMobile}
+              />
               
-              <div style={styles.buttonContainer}>
-                {!gameResult ? (
-                  <button 
-                    style={{
-                      ...styles.button, 
-                      width: isMobile ? '100%' : 'auto',
-                      ...(!nearestGuess || !farthestGuess ? styles.buttonDisabled : {})
-                    }}
-                    onClick={submitGuess}
-                    disabled={!nearestGuess || !farthestGuess}
-                    onMouseEnter={(e) => {
-                      if (nearestGuess && farthestGuess) {
-                        e.target.style.backgroundColor = styles.buttonHover.backgroundColor;
-                        e.target.style.transform = styles.buttonHover.transform;
-                        e.target.style.boxShadow = styles.buttonHover.boxShadow;
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = '';
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.boxShadow = styles.button.boxShadow;
-                    }}
-                  >
-                    提交猜测
-                  </button>
-                ) : (
-                  <button 
-                    style={{...styles.button, width: isMobile ? '100%' : 'auto'}}
-                    onClick={resetGame}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = styles.buttonHover.backgroundColor;
-                      e.target.style.transform = styles.buttonHover.transform;
-                      e.target.style.boxShadow = styles.buttonHover.boxShadow;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = '';
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.boxShadow = styles.button.boxShadow;
-                    }}
-                  >
-                    再玩一次
-                  </button>
-                )}
-              </div>
+              <GameResults
+                gameResult={gameResult}
+                debugVisible={debugVisible}
+                logs={logs}
+                setDebugVisible={setDebugVisible}
+                copyLogs={copyLogs}
+                styles={styles}
+              />
             </>
           )}
         </div>
-        
-        <button 
-          style={styles.debugButton}
-          onClick={() => setDebugVisible(!debugVisible)}
-        >
-          <div style={{color: '#94A3B8', fontSize: '14px'}}>
-            {debugVisible ? '隐藏调试信息' : '显示调试信息'}
-          </div>
-        </button>
-        
-        {renderDebugPanel()}
         
         <div style={styles.footer}>
           © 2023 猜城市距离 - 中国城市地理知识小游戏
         </div>
       </div>
-      
-      <style jsx global>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        
-        @keyframes pulse {
-          0% { opacity: 0.5; }
-          50% { opacity: 1; }
-          100% { opacity: 0.5; }
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        body {
-          margin: 0;
-          padding: 0;
-          background-color: #F3F4F6;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-        
-        .city-tooltip {
-          background-color: #4F46E5;
-          color: white;
-          border: none;
-          padding: 5px 10px;
-          border-radius: 4px;
-          font-weight: bold;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-          white-space: nowrap;
-          z-index: 1000;
-        }
-        
-        /* 防止地图元素溢出 */
-        .leaflet-container {
-          z-index: 1;
-          border-radius: 16px;
-        }
-        
-        /* 美化地图控件 */
-        .leaflet-control-zoom {
-          border: none !important;
-          margin: 15px !important;
-        }
-        
-        .leaflet-control-zoom a {
-          background-color: white !important;
-          color: #4F46E5 !important;
-          border: 1px solid rgba(0, 0, 0, 0.1) !important;
-          width: 36px !important;
-          height: 36px !important;
-          line-height: 36px !important;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
-          transition: all 0.2s ease;
-        }
-        
-        .leaflet-control-zoom a:hover {
-          background-color: #f8fafc !important;
-          transform: translateY(-1px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
-        }
-        
-        /* 城市对卡片悬停动画 */
-        .city-pair-hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-          transition: all 0.2s ease;
-        }
-        
-        /* 按钮波纹效果 */
-        @keyframes ripple {
-          to {
-            transform: scale(4);
-            opacity: 0;
-          }
-        }
-      `}</style>
     </div>
   );
 }

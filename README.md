@@ -11,16 +11,10 @@ city-game/
 │   │   └── GameMap.jsx     // 地图组件
 │   ├── services/           // 服务层
 │   │   ├── cityData.js     // 城市数据服务
-│   │   ├── mapServices.js  // 地图工具函数
 │   │   └── mockWebGL.js    // WebGL模拟服务
 │   ├── __tests__/          // 测试目录
 │   │   ├── cityData.test.js       // 城市数据服务测试
-│   │   ├── mapServices.test.js    // 地图工具函数测试
-│   │   ├── ApiServices.test.js    // 高德地图API服务测试
 │   │   ├── CityGame.test.js       // CityGame 组件测试
-│   │   ├── testApiKey.js          // IP 定位测试
-│   │   ├── testDistance.js        // 距离计算测试
-│   │   └── testGeocode.js         // 地理编码测试
 │   ├── App.js              // 应用根组件
 │   ├── App.css             // 应用样式
 │   ├── CityGame.jsx        // 主游戏组件
@@ -39,10 +33,8 @@ index.js                // 应用入口
        └── CityGame.jsx // 主游戏组件
            ├── GameMap.jsx // 地图组件
            │   └── 负责地图初始化和渲染
-           ├── cityData.js 服务
-           │   └── 提供城市坐标、距离计算等功能
-           └── mapServices.js 服务
-               └── 提供距离和时长格式化功能
+           └── cityData.js 服务
+               └── 提供城市坐标、距离计算等功能
 ```
 
 ## 组件层次
@@ -67,10 +59,6 @@ index.js                // 应用入口
    - `getRandomCities()`: 随机获取城市
    - `calculateDirectDistance()`: 计算城市间距离
    - `getNearestAndFarthestCities()`: 获取最近和最远城市对
-
-2. **mapServices.js**: 地图工具函数
-   - `formatDistance(meters)`: 格式化距离为易读形式
-   - `formatDuration(seconds)`: 格式化时长为易读形式
 
 ## 主要功能流程
 
