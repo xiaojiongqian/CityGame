@@ -18,16 +18,16 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '20px',
+    padding: '10px',
     background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%)',
-    width: '100%',  // 新增
-    maxWidth: '800px',  // 新增固定最大宽度
-    margin: '0 auto'  // 新增居中
+    width: '100%',
+    maxWidth: '650px',
+    margin: '0 auto'
   },
   gameContainer: {
-    width: '100%',  // 修改为100%填充容器
-    maxWidth: '500px',  // 保留原有最大宽度
-    margin: '0 auto'  // 新增居中
+    width: '100%',
+    maxWidth: '600px',
+    margin: '0 auto'
   },
   header: {
     marginBottom: '32px',
@@ -64,12 +64,12 @@ const styles = {
     background: 'white',
     borderRadius: '16px',
     boxShadow: '0 10px 25px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0, 0, 0, 0.03)',
-    padding: '28px',
-    margin: '0 auto 24px',  // 修改为自动边距
+    padding: '16px',
+    margin: '0 auto 16px',
     transition: 'all 0.3s ease',
     border: '1px solid rgba(0, 0, 0, 0.05)',
-    width: '95%',  // 新增百分比宽度
-    maxWidth: '100%'  // 新增最大宽度
+    width: '100%',
+    maxWidth: '100%'
   },
   description: {
     fontSize: '18px',
@@ -85,7 +85,7 @@ const styles = {
   button: {
     color: 'white',
     fontWeight: 'bold',
-    padding: '10px 24px',  // 修改为更紧凑的padding
+    padding: '10px 24px',
     borderRadius: '12px',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
@@ -96,8 +96,8 @@ const styles = {
     letterSpacing: '0.5px',
     position: 'relative',
     overflow: 'hidden',
-    height: '40px',  // 新增固定高度
-    lineHeight: '20px'  // 新增行高控制
+    height: '40px',
+    lineHeight: '20px'
   },
   buttonHover: {
     backgroundColor: '#4338CA',
@@ -113,7 +113,7 @@ const styles = {
     height: '350px',
     borderRadius: '16px',
     overflow: 'hidden',
-    marginBottom: '28px',
+    marginBottom: '20px',
     background: '#f2f8fc',
     position: 'relative',
     boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
@@ -122,11 +122,11 @@ const styles = {
   cityPairsContainer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
-    marginBottom: '28px',
+    gap: '12px',
+    marginBottom: '20px',
   },
   cityPair: {
-    padding: '16px 20px',
+    padding: '12px 16px',
     borderRadius: '12px',
     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
     border: '1px solid #E2E8F0',
@@ -162,11 +162,11 @@ const styles = {
     fontSize: '18px',
     display: 'flex',
     alignItems: 'center',
-    flex: '1 1 auto',       // 允许 flex 项缩放
-    minWidth: 0,            // 保证最小宽度为 0，才能生效溢出隐藏
-    whiteSpace: 'nowrap',   // 禁止换行
-    overflow: 'hidden',     // 超出隐藏
-    textOverflow: 'ellipsis', // 溢出用省略号
+    flex: '1 1 auto',
+    minWidth: 0,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
   cityPairIcon: {
     marginRight: '8px',
@@ -211,9 +211,9 @@ const styles = {
     color: '#4B5563',
     fontSize: '18px',
     fontWeight: '500',
-    whiteSpace: 'nowrap',   // 禁止换行
-    overflow: 'hidden',     // 超出隐藏
-    textOverflow: 'ellipsis', // 溢出用省略号
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
   resultContainer: {
     padding: '24px',
@@ -317,7 +317,6 @@ const styles = {
     color: 'white',
     cursor: 'pointer',
   },
-  // 猜测提示样式（非按钮风格）
   guessPrompt: {
     flex: 1,
     padding: '16px',
@@ -615,9 +614,9 @@ function CityGame() {
     if (!cityPairs.length) return null;
     return (
       <div style={{ ...styles.cityPairsContainer, flexDirection: "column", overflowX: "visible" }}>
-        <div style={{marginBottom: '18px'}}>
-          <div style={{fontWeight: 'bold', color: '#4F46E5', marginBottom: '10px', fontSize: '18px', letterSpacing: '1px'}}>请选择最近的城市对：</div>
-          <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+        <div style={{marginBottom: '14px'}}>
+          <div style={{fontWeight: 'bold', color: '#4F46E5', marginBottom: '8px', fontSize: '18px', letterSpacing: '1px'}}>请选择最近的城市对：</div>
+          <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
             {cityPairs.map((pair, idx) => {
               const isSelected = nearestGuess && pair.cities.every(city => nearestGuess.cities.includes(city));
               const isDisabled = !!gameResult;
@@ -652,8 +651,8 @@ function CityGame() {
           </div>
         </div>
         <div>
-          <div style={{fontWeight: 'bold', color: '#EF4444', marginBottom: '10px', fontSize: '18px', letterSpacing: '1px'}}>请选择最远的城市对：</div>
-          <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+          <div style={{fontWeight: 'bold', color: '#EF4444', marginBottom: '8px', fontSize: '18px', letterSpacing: '1px'}}>请选择最远的城市对：</div>
+          <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
             {cityPairs.map((pair, idx) => {
               const isSelected = farthestGuess && pair.cities.every(city => farthestGuess.cities.includes(city));
               const isDisabled = !!gameResult;
