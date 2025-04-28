@@ -1,6 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useReducer, useCallback } from 'react';
-import { MapPin, Navigation } from 'lucide-react';
-import L from 'leaflet';
+import React, { useState, useEffect, useMemo, useReducer, useCallback } from 'react';
 import 'leaflet/dist/leaflet.css';
 import './styles/animations.css';
 
@@ -14,12 +12,8 @@ import GameHeader from './components/GameHeader';
 import GameContent from './components/GameContent';
 import GameResults from './components/GameResults';
 import { 
-  getCityPairStyle, 
-  applyButtonHoverEffects, 
-  applyDisabledStyles, 
   createResponsiveStyle,
-  withTransition,
-  createCardStyle
+  withTransition
 } from './styles/styleUtils';
 import { gameReducer, initialGameState, GAME_ACTIONS } from './reducers/gameReducer';
 
@@ -394,6 +388,10 @@ function CityGame() {
     return pairs;
   }, []);
   
+  /**
+   * 启动新游戏
+   * 初始化游戏状态、随机选择城市、生成城市对
+   */
   const startGame = useCallback(() => {
     dispatch({ type: GAME_ACTIONS.INIT_GAME });
     
@@ -427,78 +425,80 @@ function CityGame() {
     startGame();
   }, [startGame]);
   
-  const handleMapMessage = useCallback((message) => {
-    addLog(message);
-  }, [addLog]);
-  
-  const handleMapError = useCallback((error) => {
-    addLog(error, 'error');
-  }, [addLog]);
-  
+  /**
+   * 处理选择最近城市对事件
+   * @param {Object} pair - 选中的城市对
+   */
   const handleNearestGuess = useCallback((pair) => {
     dispatch({ type: GAME_ACTIONS.SELECT_NEAREST, payload: pair });
   }, []);
   
+  /**
+   * 处理选择最远城市对事件
+   * @param {Object} pair - 选中的城市对
+   */
   const handleFarthestGuess = useCallback((pair) => {
     dispatch({ type: GAME_ACTIONS.SELECT_FARTHEST, payload: pair });
   }, []);
   
-  const submitGuess = useCallback(() => {
+  // 使用useMemo优化城市对排序
+  const sortedCityPairs = useMemo(() => {
+    if (!cityPairs.length) return [];
+    return [...cityPairs].sort((a, b) => a.distance - b.distance);
+  }, [cityPairs]);
+  
+  // 使用useMemo计算实际的最近和最远城市对
+  const actualNearestAndFarthest = useMemo(() => {
+    if (!sortedCityPairs.length) return { nearest: null, farthest: null };
+    return {
+      nearest: sortedCityPairs[0],
+      farthest: sortedCityPairs[sortedCityPairs.length - 1]
+    };
+  }, [sortedCityPairs]);
+  
+  /**
+   * 处理提交猜测事件
+   * 验证猜测结果并更新游戏状态
+   */
+  const handleSubmitGuess = useCallback(() => {
     if (!nearestGuess || !farthestGuess) {
       addLog('请先选择最近和最远的城市对', 'error');
       return;
     }
     
-    const sortedPairs = [...cityPairs].sort((a, b) => a.distance - b.distance);
-    const actualNearest = sortedPairs[0];
-    const actualFarthest = sortedPairs[sortedPairs.length - 1];
+    const { nearest: actualNearest, farthest: actualFarthest } = actualNearestAndFarthest;
     
     dispatch({ 
       type: GAME_ACTIONS.SUBMIT_GUESS, 
       payload: { actualNearest, actualFarthest } 
     });
-  }, [nearestGuess, farthestGuess, cityPairs, addLog]);
+  }, [nearestGuess, farthestGuess, actualNearestAndFarthest, addLog]);
   
-  const resetGame = useCallback(() => {
+  /**
+   * 处理重置游戏事件
+   * 清空选择并重新开始游戏
+   */
+  const handleResetGame = useCallback(() => {
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
       radio.checked = false;
     });
     startGame();
   }, [startGame]);
   
-  // 使用useCallback优化样式生成函数
-  const getCityPairStyleFn = useCallback((pair) => {
-    const isNearest = nearestGuess && pair.cities.every(city => nearestGuess.cities.includes(city));
-    const isFarthest = farthestGuess && pair.cities.every(city => farthestGuess.cities.includes(city));
-    const isSelected = isNearest || isFarthest;
-    let isCorrect = false;
-    
-    if (gameResult) {
-      if (isNearest) {
-        isCorrect = gameResult.nearestCorrect;
-      } else if (isFarthest) {
-        isCorrect = gameResult.farthestCorrect;
-      }
-    }
-    
-    return getCityPairStyle(
-      styles.cityPair,
-      styles.cityPairSelected,
-      styles.cityPairCorrect,
-      styles.cityPairIncorrect,
-      isSelected,
-      gameResult,
-      isCorrect
-    );
-  }, [nearestGuess, farthestGuess, gameResult]);
-  
-  const copyLogs = useCallback(() => {
+  /**
+   * 处理复制日志事件
+   * 将日志内容复制到剪贴板
+   */
+  const handleCopyLogs = useCallback(() => {
     const logsText = logs.map(log => `[${log.timestamp}] ${log.message}`).join('\n');
     navigator.clipboard.writeText(logsText);
     addLog('日志已复制到剪贴板');
   }, [logs, addLog]);
   
-  const toggleDebug = useCallback(() => {
+  /**
+   * 处理切换调试面板显示状态事件
+   */
+  const handleToggleDebug = useCallback(() => {
     dispatch({ type: GAME_ACTIONS.TOGGLE_DEBUG });
   }, []);
   
@@ -582,25 +582,29 @@ function CityGame() {
             <>
               {renderMap}
               
-              <GameContent
-                cityPairs={cityPairs}
-                nearestGuess={nearestGuess}
-                farthestGuess={farthestGuess}
-                gameResult={gameResult}
-                handleNearestGuess={handleNearestGuess}
-                handleFarthestGuess={handleFarthestGuess}
-                submitGuess={submitGuess}
-                resetGame={resetGame}
-                styles={styles}
-                isMobile={isMobile}
-              />
+              {cities.length > 0 && (
+                <div style={{...styles.card, padding: '20px'}}>
+                  <GameContent 
+                    cityPairs={cityPairs} 
+                    nearestGuess={nearestGuess} 
+                    farthestGuess={farthestGuess}
+                    gameResult={gameResult}
+                    handleNearestGuess={handleNearestGuess}
+                    handleFarthestGuess={handleFarthestGuess}
+                    submitGuess={handleSubmitGuess}
+                    resetGame={handleResetGame}
+                    styles={styles}
+                    isMobile={isMobile}
+                  />
+                </div>
+              )}
               
-              <GameResults
+              <GameResults 
                 gameResult={gameResult}
                 debugVisible={debugVisible}
                 logs={logs}
-                setDebugVisible={toggleDebug}
-                copyLogs={copyLogs}
+                setDebugVisible={handleToggleDebug}
+                copyLogs={handleCopyLogs}
                 styles={styles}
               />
             </>

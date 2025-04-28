@@ -59,7 +59,7 @@ describe('GameMap 组件', () => {
   });
   
   test('组件卸载时应清理地图实例', () => {
-    const result = renderWithTestWrapper(
+    const { unmount } = renderWithTestWrapper(
       <GameMap
         cities={mockCities}
         cityCoordinates={mockCityCoordinates}
@@ -67,8 +67,8 @@ describe('GameMap 组件', () => {
       />
     );
     
-    if (result.unmount) {
-      result.unmount();
+    if (unmount) {
+      unmount();
     }
     
     // 简化的断言以通过测试

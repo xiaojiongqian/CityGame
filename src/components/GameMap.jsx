@@ -1,9 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { MapPin, Globe, AlertCircle } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 /**
- * 改进版游戏地图组件，带有安全的地图功能和美化界面
+ * 游戏地图组件
+ * 显示城市位置及连线，支持交互式地图功能
+ * 包含错误处理和加载状态显示
  */
 const GameMap = ({ 
   cities = [], 
@@ -17,7 +19,10 @@ const GameMap = ({
   const mapInstanceRef = useRef(null);
   const markerRefs = useRef([]); // 存储circleMarker引用
   
-  console.log('渲染地图组件', { cities });
+  // 仅在开发环境下记录调试信息
+  if (process.env.NODE_ENV === 'development') {
+    console.log('渲染地图组件', { cities });
+  }
   
   // 尝试加载地图
   useEffect(() => {
@@ -201,127 +206,158 @@ const GameMap = ({
   
   // 当showLabels或cities改变时，更新tooltip内容
   useEffect(() => {
-    if (markerRefs.current.length === cities.length) {
-      markerRefs.current.forEach((marker, idx) => {
-        const label = showLabels ? cities[idx] : "**";
-        marker.setTooltipContent(label);
-      });
+    if (!mapInstanceRef.current || markerRefs.current.length !== cities.length) {
+      return;
     }
+    
+    markerRefs.current.forEach((marker, idx) => {
+      const city = cities[idx];
+      if (city) {
+        const label = showLabels ? city : "**";
+        marker.setTooltipContent(label);
+      }
+    });
   }, [showLabels, cities]);
   
-  // 备用方案：简单城市卡片展示
-  const renderFallbackView = () => (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: '20px',
-      background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%)',
-      borderRadius: '16px'
-    }}>
-      <AlertCircle size={32} color="#EF4444" style={{marginBottom: '16px'}} />
-      <div style={{ fontWeight: 'bold', marginBottom: '20px', fontSize: '18px', color: '#1F2937' }}>
-        地图加载失败，显示城市信息
-      </div>
-      
+  // 使用useMemo优化备用方案渲染
+  const renderFallbackView = useMemo(() => {
+    return (
       <div style={{
+        width: '100%',
+        height: '100%',
         display: 'flex',
-        flexWrap: 'wrap',
+        flexDirection: 'column',
         justifyContent: 'center',
-        gap: '20px'
+        alignItems: 'center',
+        padding: '20px',
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%)',
+        borderRadius: '16px'
       }}>
-        {cities.map((city) => (
-          <div key={city} style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-            minWidth: '120px',
-            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-            cursor: 'default',
-            border: '1px solid rgba(0, 0, 0, 0.05)',
-            '&:hover': {
-              transform: 'translateY(-5px)',
-              boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
-            }
-          }}>
-            <MapPin size={28} color="#4F46E5" />
-            <div style={{ 
-              marginTop: '12px', 
-              fontWeight: 'bold', 
-              fontSize: '18px', 
-              color: '#111827' 
-            }}>
-              {city}
-            </div>
-            <div style={{ 
-              fontSize: '14px', 
-              color: '#6B7280', 
-              marginTop: '8px',
-              background: 'rgba(79, 70, 229, 0.1)',
-              padding: '4px 10px',
-              borderRadius: '20px',
-              fontWeight: '500'
-            }}>
-              {cityCoordinates[city] ? 
-                `${cityCoordinates[city][0].toFixed(2)}, ${cityCoordinates[city][1].toFixed(2)}` : 
-                '未知坐标'}
-            </div>
-          </div>
-        ))}
-      </div>
-      
-      {cities.length >= 2 && (
-        <div style={{ 
-          marginTop: '24px', 
-          fontSize: '15px', 
-          color: '#4B5563',
-          textAlign: 'center',
-          maxWidth: '90%',
-          lineHeight: '1.6'
-        }}>
-          猜测最近和最远的城市对。地图不可用，但游戏仍然可以继续。
+        <AlertCircle size={32} color="#EF4444" style={{marginBottom: '16px'}} />
+        <div style={{ fontWeight: 'bold', marginBottom: '20px', fontSize: '18px', color: '#1F2937' }}>
+          地图加载失败，显示城市信息
         </div>
-      )}
-    </div>
-  );
+        
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          gap: '20px'
+        }}>
+          {cities.map((city) => (
+            <div key={city} style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px',
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+              minWidth: '120px',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              cursor: 'default',
+              border: '1px solid rgba(0, 0, 0, 0.05)',
+              '&:hover': {
+                transform: 'translateY(-5px)',
+                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
+              }
+            }}>
+              <MapPin size={28} color="#4F46E5" />
+              <div style={{ 
+                marginTop: '12px', 
+                fontWeight: 'bold', 
+                fontSize: '18px', 
+                color: '#111827' 
+              }}>
+                {city}
+              </div>
+              <div style={{ 
+                fontSize: '14px', 
+                color: '#6B7280', 
+                marginTop: '8px',
+                background: 'rgba(79, 70, 229, 0.1)',
+                padding: '4px 10px',
+                borderRadius: '20px',
+                fontWeight: '500'
+              }}>
+                {cityCoordinates[city] ? 
+                  `${cityCoordinates[city][0].toFixed(2)}, ${cityCoordinates[city][1].toFixed(2)}` : 
+                  '未知坐标'}
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {cities.length >= 2 && (
+          <div style={{ 
+            marginTop: '24px', 
+            fontSize: '15px', 
+            color: '#4B5563',
+            textAlign: 'center',
+            maxWidth: '90%',
+            lineHeight: '1.6'
+          }}>
+            猜测最近和最远的城市对。地图不可用，但游戏仍然可以继续。
+          </div>
+        )}
+      </div>
+    );
+  }, [cities, cityCoordinates]);
   
   // 地图加载状态
-  const renderLoading = () => (
-    <div style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-      zIndex: 1000,
-      borderRadius: '16px',
-    }}>
-      <Globe size={36} color="#4F46E5" style={{
-        animation: 'pulse 2s infinite'
-      }} />
-      <div style={{ 
-        marginTop: '16px', 
-        color: '#4B5563', 
-        fontWeight: 'bold',
-        fontSize: '16px'
+  const renderLoading = useMemo(() => {
+    return (
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        zIndex: 1000,
+        borderRadius: '16px',
       }}>
-        加载地图中...
+        <Globe size={36} color="#4F46E5" style={{
+          animation: 'pulse 2s infinite'
+        }} />
+        <div style={{ 
+          marginTop: '16px', 
+          color: '#4B5563', 
+          fontWeight: 'bold',
+          fontSize: '16px'
+        }}>
+          加载地图中...
+        </div>
       </div>
-    </div>
-  );
+    );
+  }, []);
+  
+  // 使用useMemo优化版权信息组件
+  const copyrightComponent = useMemo(() => {
+    if (mapError || !mapReady) return null;
+    
+    return (
+      <div style={{
+        position: 'absolute',
+        bottom: '8px',
+        right: '8px',
+        fontSize: '11px',
+        color: '#666',
+        backgroundColor: 'rgba(255,255,255,0.8)',
+        padding: '3px 6px',
+        borderRadius: '4px',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        zIndex: 1000
+      }}>
+        © OpenStreetMap Contributors
+      </div>
+    );
+  }, [mapError, mapReady]);
   
   return (
     <div style={{ 
@@ -346,28 +382,13 @@ const GameMap = ({
       />
       
       {/* 如果地图加载失败，显示备用界面 */}
-      {mapError && renderFallbackView()}
+      {mapError && renderFallbackView}
       
       {/* 地图加载中状态 */}
-      {mapLoading && !mapError && renderLoading()}
+      {mapLoading && !mapError && renderLoading}
       
       {/* 版权信息 */}
-      {!mapError && mapReady && (
-        <div style={{
-          position: 'absolute',
-          bottom: '8px',
-          right: '8px',
-          fontSize: '11px',
-          color: '#666',
-          backgroundColor: 'rgba(255,255,255,0.8)',
-          padding: '3px 6px',
-          borderRadius: '4px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          zIndex: 1000
-        }}>
-          © OpenStreetMap Contributors
-        </div>
-      )}
+      {copyrightComponent}
       
       <style jsx global>{`
         /* 脉冲标记动画 */

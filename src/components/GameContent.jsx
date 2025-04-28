@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { applyButtonHoverEffects, getCityPairStyle, applyDisabledStyles, ensureButtonHeight } from '../styles/styleUtils';
 
@@ -39,6 +39,20 @@ const GameContent = ({
     })
   , [styles.button, isMobile]);
   
+  // 使用useCallback优化选择最近城市对的处理函数
+  const handleNearestPairSelect = useCallback((pair) => {
+    if (!gameResult) {
+      handleNearestGuess(pair);
+    }
+  }, [gameResult, handleNearestGuess]);
+  
+  // 使用useCallback优化选择最远城市对的处理函数
+  const handleFarthestPairSelect = useCallback((pair) => {
+    if (!gameResult) {
+      handleFarthestGuess(pair);
+    }
+  }, [gameResult, handleFarthestGuess]);
+  
   // 使用useMemo缓存最近城市对渲染
   const nearestCityPairs = useMemo(() => (
     cityPairs.map((pair, idx) => {
@@ -76,7 +90,7 @@ const GameContent = ({
             name="nearestPair"
             disabled={isDisabled}
             checked={isSelected}
-            onChange={() => { if (!gameResult) handleNearestGuess(pair); }}
+            onChange={() => handleNearestPairSelect(pair)}
             style={{marginRight: '12px', accentColor: '#4F46E5', width: '18px', height: '18px'}}
           />
           <span style={styles.cityPairNames}>{pair.cities.join(' - ')}</span>
@@ -86,7 +100,7 @@ const GameContent = ({
         </label>
       );
     })
-  ), [cityPairs, nearestGuess, gameResult, styles, handleNearestGuess]);
+  ), [cityPairs, nearestGuess, gameResult, styles, handleNearestPairSelect]);
   
   // 使用useMemo缓存最远城市对渲染
   const farthestCityPairs = useMemo(() => (
@@ -125,7 +139,7 @@ const GameContent = ({
             name="farthestPair"
             disabled={isDisabled}
             checked={isSelected}
-            onChange={() => { if (!gameResult) handleFarthestGuess(pair); }}
+            onChange={() => handleFarthestPairSelect(pair)}
             style={{marginRight: '12px', accentColor: '#EF4444', width: '18px', height: '18px'}}
           />
           <span style={styles.cityPairNames}>{pair.cities.join(' - ')}</span>
@@ -135,7 +149,7 @@ const GameContent = ({
         </label>
       );
     })
-  ), [cityPairs, farthestGuess, gameResult, styles, handleFarthestGuess]);
+  ), [cityPairs, farthestGuess, gameResult, styles, handleFarthestPairSelect]);
   
   // 条件检查应该在所有hooks之后
   if (!cityPairs.length) return null;

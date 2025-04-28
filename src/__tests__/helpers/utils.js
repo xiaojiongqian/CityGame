@@ -4,9 +4,6 @@
  * @jest-environment-disable
  */
 
-import React from 'react';
-import { render } from '@testing-library/react';
-
 // 简化版的测试渲染器，避免DOM操作错误
 export function renderWithTestWrapper(ui, options = {}) {
   // 直接返回一个模拟的渲染结果，避免实际DOM操作
