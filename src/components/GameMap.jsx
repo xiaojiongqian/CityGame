@@ -67,15 +67,15 @@ const GameMap = ({
         mapInstance = leaflet.map(mapContainerRef.current, {
           center: [35, 105], // 中国中心点附近
           zoom: 4,
-          zoomControl: false,
+          zoomControl: true,
           attributionControl: false,
-          dragging: false,      // 禁用拖动
-          scrollWheelZoom: false, // 禁用滚轮缩放
-          doubleClickZoom: false, // 禁用双击缩放
-          touchZoom: false,     // 禁用触摸缩放
-          boxZoom: false,       // 禁用框选缩放
-          tap: false,           // 禁用触摸事件
-          keyboard: false,      // 禁用键盘
+          dragging: true,      // 启用拖动
+          scrollWheelZoom: true, // 启用滚轮缩放
+          doubleClickZoom: true, // 启用双击缩放
+          touchZoom: true,     // 启用触摸缩放
+          boxZoom: true,       // 启用框选缩放
+          tap: true,           // 启用触摸事件
+          keyboard: true,      // 启用键盘
           preferCanvas: false,  // 使用SVG渲染
           renderer: leaflet.svg() // 明确使用SVG渲染器
         });

@@ -725,6 +725,27 @@ function CityGame() {
           cityCoordinates={cityCoordinates}
           showLabels={!!gameResult}
         />
+        <div style={{
+          position: 'absolute',
+          bottom: '10px',
+          right: '10px',
+          background: 'rgba(255, 255, 255, 0.8)',
+          padding: '6px 10px',
+          borderRadius: '8px',
+          fontSize: '12px',
+          color: '#4B5563',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          pointerEvents: 'none'
+        }}>
+          <span style={{display: 'flex', alignItems: 'center', gap: '4px'}}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+            可缩放和拖动
+          </span>
+        </div>
       </div>
     );
   };
@@ -849,9 +870,27 @@ function CityGame() {
           border-radius: 16px;
         }
         
-        /* 禁用不需要的交互元素 */
-        .leaflet-control-container {
-          display: none;
+        /* 美化地图控件 */
+        .leaflet-control-zoom {
+          border: none !important;
+          margin: 15px !important;
+        }
+        
+        .leaflet-control-zoom a {
+          background-color: white !important;
+          color: #4F46E5 !important;
+          border: 1px solid rgba(0, 0, 0, 0.1) !important;
+          width: 36px !important;
+          height: 36px !important;
+          line-height: 36px !important;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+          transition: all 0.2s ease;
+        }
+        
+        .leaflet-control-zoom a:hover {
+          background-color: #f8fafc !important;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
         }
         
         /* 城市对卡片悬停动画 */
