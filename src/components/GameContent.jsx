@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { applyButtonHoverEffects, getCityPairStyle, applyDisabledStyles } from '../styles/styleUtils';
+import { applyButtonHoverEffects, getCityPairStyle, applyDisabledStyles, ensureButtonHeight } from '../styles/styleUtils';
 
 /**
  * 游戏内容组件，包含城市对列表和猜测功能
@@ -23,17 +23,21 @@ const GameContent = ({
   [styles.button, styles.buttonHover]);
   
   // 使用useMemo缓存提交按钮的禁用状态和样式
-  const submitButtonStyle = useMemo(() => ({
-    ...styles.button, 
-    width: isMobile ? '100%' : 'auto',
-    ...(!nearestGuess || !farthestGuess ? styles.buttonDisabled : {})
-  }), [styles.button, styles.buttonDisabled, isMobile, nearestGuess, farthestGuess]);
+  const submitButtonStyle = useMemo(() => 
+    ensureButtonHeight({
+      ...styles.button, 
+      width: isMobile ? '100%' : 'auto',
+      ...(!nearestGuess || !farthestGuess ? styles.buttonDisabled : {})
+    })
+  , [styles.button, styles.buttonDisabled, isMobile, nearestGuess, farthestGuess]);
   
   // 使用useMemo缓存重置按钮样式
-  const resetButtonStyle = useMemo(() => ({
-    ...styles.button, 
-    width: isMobile ? '100%' : 'auto'
-  }), [styles.button, isMobile]);
+  const resetButtonStyle = useMemo(() => 
+    ensureButtonHeight({
+      ...styles.button, 
+      width: isMobile ? '100%' : 'auto'
+    })
+  , [styles.button, isMobile]);
   
   // 使用useMemo缓存最近城市对渲染
   const nearestCityPairs = useMemo(() => (
@@ -55,7 +59,10 @@ const GameContent = ({
           borderColor: isSelected ? '#4F46E5' : '#E2E8F0',
           background: isSelected ? 'linear-gradient(90deg, #f5f7fa 60%, #e0e7ff 100%)' : 'white',
           transition: 'all 0.2s',
-          boxShadow: isSelected ? '0 4px 16px rgba(79,70,229,0.08)' : styles.cityPair.boxShadow
+          boxShadow: isSelected ? '0 4px 16px rgba(79,70,229,0.08)' : styles.cityPair.boxShadow,
+          height: '48px',
+          display: 'flex',
+          alignItems: 'center'
         }
       );
       
@@ -101,7 +108,10 @@ const GameContent = ({
           borderColor: isSelected ? '#EF4444' : '#E2E8F0',
           background: isSelected ? 'linear-gradient(90deg, #fef2f2 60%, #fee2e2 100%)' : 'white',
           transition: 'all 0.2s',
-          boxShadow: isSelected ? '0 4px 16px rgba(239,68,68,0.08)' : styles.cityPair.boxShadow
+          boxShadow: isSelected ? '0 4px 16px rgba(239,68,68,0.08)' : styles.cityPair.boxShadow,
+          height: '48px',
+          display: 'flex',
+          alignItems: 'center'
         }
       );
       

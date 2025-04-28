@@ -1,8 +1,8 @@
-import { gameReducer, initialGameState, ACTIONS } from '../reducers/gameReducer';
+import { gameReducer, initialGameState, GAME_ACTIONS } from '../reducers/gameReducer';
 
 describe('游戏状态Reducer测试', () => {
   describe('游戏初始化相关操作', () => {
-    it('应该正确处理START_GAME动作', () => {
+    it('应该正确处理INIT_GAME动作', () => {
       const initialState = {
         ...initialGameState,
         isLoading: false,
@@ -11,7 +11,7 @@ describe('游戏状态Reducer测试', () => {
         farthestGuess: { cities: ['广州', '哈尔滨'] }
       };
       
-      const action = { type: ACTIONS.START_GAME };
+      const action = { type: GAME_ACTIONS.INIT_GAME };
       const newState = gameReducer(initialState, action);
       
       expect(newState.isLoading).toBe(true);
@@ -22,7 +22,7 @@ describe('游戏状态Reducer测试', () => {
     
     it('应该正确处理SET_CITIES动作', () => {
       const cities = ['北京', '上海', '广州'];
-      const action = { type: ACTIONS.SET_CITIES, payload: cities };
+      const action = { type: GAME_ACTIONS.SET_CITIES, payload: cities };
       const newState = gameReducer(initialGameState, action);
       
       expect(newState.cities).toEqual(cities);
@@ -34,7 +34,7 @@ describe('游戏状态Reducer测试', () => {
         { cities: ['北京', '广州'], distance: 2000 },
         { cities: ['上海', '广州'], distance: 1500 }
       ];
-      const action = { type: ACTIONS.SET_CITY_PAIRS, payload: cityPairs };
+      const action = { type: GAME_ACTIONS.SET_CITY_PAIRS, payload: cityPairs };
       const newState = gameReducer(initialGameState, action);
       
       expect(newState.cityPairs).toEqual(cityPairs);
@@ -42,17 +42,17 @@ describe('游戏状态Reducer测试', () => {
   });
   
   describe('游戏猜测相关操作', () => {
-    it('应该正确处理SET_NEAREST_GUESS动作', () => {
+    it('应该正确处理SELECT_NEAREST动作', () => {
       const nearestGuess = { cities: ['北京', '上海'], distance: 1000 };
-      const action = { type: ACTIONS.SET_NEAREST_GUESS, payload: nearestGuess };
+      const action = { type: GAME_ACTIONS.SELECT_NEAREST, payload: nearestGuess };
       const newState = gameReducer(initialGameState, action);
       
       expect(newState.nearestGuess).toEqual(nearestGuess);
     });
     
-    it('应该正确处理SET_FARTHEST_GUESS动作', () => {
+    it('应该正确处理SELECT_FARTHEST动作', () => {
       const farthestGuess = { cities: ['北京', '广州'], distance: 2000 };
-      const action = { type: ACTIONS.SET_FARTHEST_GUESS, payload: farthestGuess };
+      const action = { type: GAME_ACTIONS.SELECT_FARTHEST, payload: farthestGuess };
       const newState = gameReducer(initialGameState, action);
       
       expect(newState.farthestGuess).toEqual(farthestGuess);
@@ -70,7 +70,14 @@ describe('游戏状态Reducer测试', () => {
         farthestGuess: { cities: ['北京', '广州'], distance: 2000 }
       };
       
-      const action = { type: ACTIONS.SUBMIT_GUESS };
+      const sortedPairs = [...initialState.cityPairs].sort((a, b) => a.distance - b.distance);
+      const actualNearest = sortedPairs[0];
+      const actualFarthest = sortedPairs[sortedPairs.length - 1];
+      
+      const action = { 
+        type: GAME_ACTIONS.SUBMIT_GUESS,
+        payload: { actualNearest, actualFarthest }
+      };
       const newState = gameReducer(initialState, action);
       
       expect(newState.gameResult).toBeDefined();
@@ -93,7 +100,14 @@ describe('游戏状态Reducer测试', () => {
         farthestGuess: { cities: ['上海', '广州'], distance: 1500 }  // 错误的最远猜测
       };
       
-      const action = { type: ACTIONS.SUBMIT_GUESS };
+      const sortedPairs = [...initialState.cityPairs].sort((a, b) => a.distance - b.distance);
+      const actualNearest = sortedPairs[0];
+      const actualFarthest = sortedPairs[sortedPairs.length - 1];
+      
+      const action = { 
+        type: GAME_ACTIONS.SUBMIT_GUESS,
+        payload: { actualNearest, actualFarthest }
+      };
       const newState = gameReducer(initialState, action);
       
       expect(newState.gameResult).toBeDefined();
@@ -113,7 +127,7 @@ describe('游戏状态Reducer测试', () => {
         farthestGuess: { cities: ['广州', '哈尔滨'] }
       };
       
-      const action = { type: ACTIONS.RESET_GAME };
+      const action = { type: GAME_ACTIONS.RESET_GAME };
       const newState = gameReducer(initialState, action);
       
       expect(newState.isLoading).toBe(true);
@@ -125,7 +139,7 @@ describe('游戏状态Reducer测试', () => {
     it('应该正确处理ADD_LOG动作', () => {
       const message = '测试日志';
       const type = 'info';
-      const action = { type: ACTIONS.ADD_LOG, payload: { message, type } };
+      const action = { type: GAME_ACTIONS.ADD_LOG, payload: { message, type } };
       const newState = gameReducer(initialGameState, action);
       
       expect(newState.logs.length).toBe(1);
@@ -135,7 +149,7 @@ describe('游戏状态Reducer测试', () => {
     });
     
     it('应该正确处理SET_LOADING动作', () => {
-      const action = { type: ACTIONS.SET_LOADING, payload: false };
+      const action = { type: GAME_ACTIONS.SET_LOADING, payload: false };
       const newState = gameReducer(initialGameState, action);
       
       expect(newState.isLoading).toBe(false);
@@ -147,7 +161,7 @@ describe('游戏状态Reducer测试', () => {
         debugVisible: false
       };
       
-      const action = { type: ACTIONS.TOGGLE_DEBUG };
+      const action = { type: GAME_ACTIONS.TOGGLE_DEBUG };
       const newState = gameReducer(initialState, action);
       
       expect(newState.debugVisible).toBe(true);

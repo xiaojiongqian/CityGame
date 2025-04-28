@@ -1,5 +1,6 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
+After saved the source code, run the unit test auto.

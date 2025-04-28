@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { mergeStyles } from '../styles/styleUtils';
+import { mergeStyles, ensureButtonHeight } from '../styles/styleUtils';
 
 /**
  * 游戏结果组件，显示游戏结果和调试信息
@@ -13,6 +13,11 @@ const GameResults = ({
   copyLogs,
   styles
 }) => {
+  // 使用useMemo缓存功能按钮样式
+  const utilityButtonStyle = useMemo(() => 
+    ensureButtonHeight(styles.utilityButton, '36px', '18px')
+  , [styles.utilityButton]);
+  
   // 使用useMemo缓存游戏结果渲染
   const resultComponent = useMemo(() => {
     if (!gameResult) return null;
@@ -53,7 +58,7 @@ const GameResults = ({
         <div style={styles.debugHeader}>
           <div style={styles.debugTitle}>调试日志</div>
           <button 
-            style={styles.copyButton}
+            style={utilityButtonStyle}
             onClick={copyLogs}
           >
             复制
@@ -66,7 +71,7 @@ const GameResults = ({
         ))}
       </div>
     );
-  }, [debugVisible, logs, styles, copyLogs]);
+  }, [debugVisible, logs, styles, copyLogs, utilityButtonStyle]);
   
   // 使用useMemo缓存调试按钮文本
   const debugButtonText = useMemo(() => 

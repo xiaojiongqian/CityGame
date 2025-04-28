@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useReducer, useCallback } from 'react';
 import { MapPin, Navigation } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -13,6 +13,15 @@ import GameMap from './components/GameMap';
 import GameHeader from './components/GameHeader';
 import GameContent from './components/GameContent';
 import GameResults from './components/GameResults';
+import { 
+  getCityPairStyle, 
+  applyButtonHoverEffects, 
+  applyDisabledStyles, 
+  createResponsiveStyle,
+  withTransition,
+  createCardStyle
+} from './styles/styleUtils';
+import { gameReducer, initialGameState, GAME_ACTIONS } from './reducers/gameReducer';
 
 const styles = {
   container: {
@@ -98,8 +107,8 @@ const styles = {
     letterSpacing: '0.5px',
     position: 'relative',
     overflow: 'hidden',
-    height: '40px',
-    lineHeight: '20px'
+    height: '48px',
+    lineHeight: '28px'
   },
   buttonHover: {
     backgroundColor: '#4338CA',
@@ -300,7 +309,7 @@ const styles = {
       color: 'white',
     },
   },
-  copyButton: {
+  utilityButton: {
     color: '#94A3B8',
     marginRight: '12px',
     cursor: 'pointer',
@@ -346,24 +355,30 @@ function CityGame() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  const [cities, setCities] = useState([]);
-  const [cityPairs, setCityPairs] = useState([]);
-  const [logs, setLogs] = useState([]);
-  const [debugVisible, setDebugVisible] = useState(false);
-  const [gameResult, setGameResult] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [nearestGuess, setNearestGuess] = useState(null);
-  const [farthestGuess, setFarthestGuess] = useState(null);
   
-  const addLog = (message, type = 'info') => {
-    const now = new Date();
-    const timestamp = now.toLocaleTimeString();
-    const logEntry = { message, type, timestamp };
-    setLogs(prev => [...prev, logEntry]);
-    console[type === 'error' ? 'error' : 'log'](`[${timestamp}] ${message}`);
-  };
+  // 使用useReducer重构状态管理
+  const [state, dispatch] = useReducer(gameReducer, initialGameState);
+  const { 
+    cities, 
+    cityPairs, 
+    nearestGuess, 
+    farthestGuess, 
+    gameResult, 
+    isLoading, 
+    logs, 
+    debugVisible 
+  } = state;
   
-  const generateCityPairs = (selectedCities) => {
+  // 使用useCallback优化事件处理函数
+  const addLog = useCallback((message, type = 'info') => {
+    dispatch({ 
+      type: GAME_ACTIONS.ADD_LOG, 
+      payload: { message, type } 
+    });
+    console[type === 'error' ? 'error' : 'log'](`[${new Date().toLocaleTimeString()}] ${message}`);
+  }, []);
+  
+  const generateCityPairs = useCallback((selectedCities) => {
     const pairs = [];
     for (let i = 0; i < selectedCities.length; i++) {
       for (let j = i + 1; j < selectedCities.length; j++) {
@@ -377,18 +392,12 @@ function CityGame() {
       }
     }
     return pairs;
-  };
+  }, []);
   
-  const startGame = () => {
-    setIsLoading(true);
-    setGameResult(null);
-    setNearestGuess(null);
-    setFarthestGuess(null);
+  const startGame = useCallback(() => {
+    dispatch({ type: GAME_ACTIONS.INIT_GAME });
     
     try {
-      addLog('开始新游戏');
-      console.log('开始新游戏');
-      
       const randomCities = getRandomCities(3);
       console.log('随机选择的城市:', randomCities);
       
@@ -396,8 +405,7 @@ function CityGame() {
         throw new Error('城市数据加载失败');
       }
       
-      setCities(randomCities);
-      addLog(`已选择城市: ${randomCities.join(', ')}`);
+      dispatch({ type: GAME_ACTIONS.SET_CITIES, payload: randomCities });
       
       const pairs = generateCityPairs(randomCities);
       
@@ -405,48 +413,37 @@ function CityGame() {
         throw new Error('城市对生成失败');
       }
       
-      setCityPairs(pairs);
-      
-      pairs.forEach(pair => {
-        const [city1, city2] = pair.cities;
-        addLog(`${city1} 到 ${city2} 的距离: ${pair.distance.toFixed(1)} 公里`);
-      });
-      
-      console.log('游戏数据准备完成，结束加载');
-      setIsLoading(false);
+      dispatch({ type: GAME_ACTIONS.SET_CITY_PAIRS, payload: pairs });
+      dispatch({ type: GAME_ACTIONS.SET_LOADING, payload: false });
       
     } catch (error) {
       console.error('游戏初始化错误:', error);
       addLog(`游戏初始化错误: ${error.message}`, 'error');
-      setIsLoading(false);
+      dispatch({ type: GAME_ACTIONS.SET_LOADING, payload: false });
     }
-  };
+  }, [generateCityPairs, addLog]);
   
   useEffect(() => {
     startGame();
+  }, [startGame]);
+  
+  const handleMapMessage = useCallback((message) => {
+    addLog(message);
+  }, [addLog]);
+  
+  const handleMapError = useCallback((error) => {
+    addLog(error, 'error');
+  }, [addLog]);
+  
+  const handleNearestGuess = useCallback((pair) => {
+    dispatch({ type: GAME_ACTIONS.SELECT_NEAREST, payload: pair });
   }, []);
   
-  const handleMapMessage = (message) => {
-    addLog(message);
-    console.log('地图消息:', message);
-  };
+  const handleFarthestGuess = useCallback((pair) => {
+    dispatch({ type: GAME_ACTIONS.SELECT_FARTHEST, payload: pair });
+  }, []);
   
-  const handleMapError = (error) => {
-    addLog(error, 'error');
-    console.error('地图错误:', error);
-  };
-  
-  const handleNearestGuess = (pair) => {
-    if (gameResult) return;
-    setNearestGuess(pair);
-  };
-  
-  const handleFarthestGuess = (pair) => {
-    if (gameResult) return;
-    setFarthestGuess(pair);
-  };
-  
-  const submitGuess = () => {
+  const submitGuess = useCallback(() => {
     if (!nearestGuess || !farthestGuess) {
       addLog('请先选择最近和最远的城市对', 'error');
       return;
@@ -456,67 +453,57 @@ function CityGame() {
     const actualNearest = sortedPairs[0];
     const actualFarthest = sortedPairs[sortedPairs.length - 1];
     
-    const nearestCorrect = nearestGuess.cities.every(city => 
-      actualNearest.cities.includes(city));
-    
-    const farthestCorrect = farthestGuess.cities.every(city => 
-      actualFarthest.cities.includes(city));
-    
-    setGameResult({
-      success: nearestCorrect && farthestCorrect,
-      nearestCorrect,
-      farthestCorrect,
-      actualNearest,
-      actualFarthest
+    dispatch({ 
+      type: GAME_ACTIONS.SUBMIT_GUESS, 
+      payload: { actualNearest, actualFarthest } 
     });
-    
-    addLog(`猜测结果: ${nearestCorrect && farthestCorrect ? '全部正确' : '有错误'}`);
-    if (!nearestCorrect) {
-      addLog(`最近的城市对应为: ${actualNearest.cities.join(' 和 ')} (${actualNearest.distance.toFixed(1)} 公里)`);
-    }
-    if (!farthestCorrect) {
-      addLog(`最远的城市对应为: ${actualFarthest.cities.join(' 和 ')} (${actualFarthest.distance.toFixed(1)} 公里)`);
-    }
-  };
+  }, [nearestGuess, farthestGuess, cityPairs, addLog]);
   
-  const resetGame = () => {
+  const resetGame = useCallback(() => {
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
       radio.checked = false;
     });
     startGame();
-  };
+  }, [startGame]);
   
-  const getCityPairClassName = (pair) => {
+  // 使用useCallback优化样式生成函数
+  const getCityPairStyleFn = useCallback((pair) => {
     const isNearest = nearestGuess && pair.cities.every(city => nearestGuess.cities.includes(city));
     const isFarthest = farthestGuess && pair.cities.every(city => farthestGuess.cities.includes(city));
-    
-    if (!isNearest && !isFarthest) {
-      return styles.cityPair;
-    }
+    const isSelected = isNearest || isFarthest;
+    let isCorrect = false;
     
     if (gameResult) {
       if (isNearest) {
-        return gameResult.nearestCorrect 
-          ? {...styles.cityPair, ...styles.cityPairCorrect} 
-          : {...styles.cityPair, ...styles.cityPairIncorrect};
-      }
-      if (isFarthest) {
-        return gameResult.farthestCorrect 
-          ? {...styles.cityPair, ...styles.cityPairCorrect} 
-          : {...styles.cityPair, ...styles.cityPairIncorrect};
+        isCorrect = gameResult.nearestCorrect;
+      } else if (isFarthest) {
+        isCorrect = gameResult.farthestCorrect;
       }
     }
     
-    return {...styles.cityPair, ...styles.cityPairSelected};
-  };
+    return getCityPairStyle(
+      styles.cityPair,
+      styles.cityPairSelected,
+      styles.cityPairCorrect,
+      styles.cityPairIncorrect,
+      isSelected,
+      gameResult,
+      isCorrect
+    );
+  }, [nearestGuess, farthestGuess, gameResult]);
   
-  const copyLogs = () => {
+  const copyLogs = useCallback(() => {
     const logsText = logs.map(log => `[${log.timestamp}] ${log.message}`).join('\n');
     navigator.clipboard.writeText(logsText);
     addLog('日志已复制到剪贴板');
-  };
+  }, [logs, addLog]);
   
-  const renderLoading = () => {
+  const toggleDebug = useCallback(() => {
+    dispatch({ type: GAME_ACTIONS.TOGGLE_DEBUG });
+  }, []);
+  
+  // 使用useMemo优化渲染函数
+  const renderLoading = useMemo(() => {
     return (
       <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px 0'}}>
         <div style={{position: 'relative', width: '40px', height: '40px', marginBottom: '20px'}}>
@@ -533,13 +520,19 @@ function CityGame() {
         <div style={{color: '#6B7280', fontSize: '18px', animation: 'pulse 1.5s infinite ease-in-out'}}>正在初始化游戏...</div>
       </div>
     );
-  };
+  }, []);
   
-  const renderMap = () => {
+  const renderMap = useMemo(() => {
     if (!cities.length) return null;
     
+    const mapStyle = createResponsiveStyle(
+      styles.map, 
+      { height: '220px' },
+      isMobile
+    );
+    
     return (
-      <div style={{...styles.map, position: 'relative', height: isMobile ? '220px' : styles.map.height}}>
+      <div style={{...mapStyle, position: 'relative'}}>
         <GameMap 
           cities={cities}
           cityCoordinates={cityCoordinates}
@@ -568,11 +561,15 @@ function CityGame() {
         </div>
       </div>
     );
-  };
+  }, [cities, gameResult, isMobile]);
+  
+  const gameContainerStyle = useMemo(() => 
+    withTransition(styles.gameContainer),
+  []);
   
   return (
     <div style={styles.container}>
-      <div style={styles.gameContainer}>
+      <div style={gameContainerStyle}>
         <GameHeader
           isMobile={isMobile}
           styles={styles}
@@ -580,10 +577,10 @@ function CityGame() {
         
         <div style={styles.card}>
           {isLoading ? (
-            renderLoading()
+            renderLoading
           ) : (
             <>
-              {renderMap()}
+              {renderMap}
               
               <GameContent
                 cityPairs={cityPairs}
@@ -602,7 +599,7 @@ function CityGame() {
                 gameResult={gameResult}
                 debugVisible={debugVisible}
                 logs={logs}
-                setDebugVisible={setDebugVisible}
+                setDebugVisible={toggleDebug}
                 copyLogs={copyLogs}
                 styles={styles}
               />
@@ -618,4 +615,4 @@ function CityGame() {
   );
 }
 
-export default CityGame;
+export default React.memo(CityGame);

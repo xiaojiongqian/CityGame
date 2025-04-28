@@ -409,4 +409,12 @@ const GameMap = ({
   );
 };
 
-export default GameMap; 
+// 性能优化：使用React.memo避免不必要的重新渲染
+export default React.memo(GameMap, (prevProps, nextProps) => {
+  // 只在城市数组或标签显示状态变化时重新渲染
+  return (
+    prevProps.showLabels === nextProps.showLabels &&
+    prevProps.cities.length === nextProps.cities.length &&
+    prevProps.cities.every((city, index) => city === nextProps.cities[index])
+  );
+}); 
