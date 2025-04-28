@@ -20,10 +20,14 @@ const styles = {
     alignItems: 'center',
     padding: '20px',
     background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%)',
+    width: '100%',  // 新增
+    maxWidth: '800px',  // 新增固定最大宽度
+    margin: '0 auto'  // 新增居中
   },
   gameContainer: {
-    maxWidth: '800px',
-    width: '100%',
+    width: '100%',  // 修改为100%填充容器
+    maxWidth: '500px',  // 保留原有最大宽度
+    margin: '0 auto'  // 新增居中
   },
   header: {
     marginBottom: '32px',
@@ -61,9 +65,11 @@ const styles = {
     borderRadius: '16px',
     boxShadow: '0 10px 25px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0, 0, 0, 0.03)',
     padding: '28px',
-    margin: '0 0 24px 0',
+    margin: '0 auto 24px',  // 修改为自动边距
     transition: 'all 0.3s ease',
     border: '1px solid rgba(0, 0, 0, 0.05)',
+    width: '95%',  // 新增百分比宽度
+    maxWidth: '100%'  // 新增最大宽度
   },
   description: {
     fontSize: '18px',
@@ -79,7 +85,7 @@ const styles = {
   button: {
     color: 'white',
     fontWeight: 'bold',
-    padding: '14px 28px',
+    padding: '10px 24px',  // 修改为更紧凑的padding
     borderRadius: '12px',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
@@ -90,6 +96,8 @@ const styles = {
     letterSpacing: '0.5px',
     position: 'relative',
     overflow: 'hidden',
+    height: '40px',  // 新增固定高度
+    lineHeight: '20px'  // 新增行高控制
   },
   buttonHover: {
     backgroundColor: '#4338CA',
@@ -378,8 +386,8 @@ function CityGame() {
   const startGame = () => {
     setIsLoading(true);
     setGameResult(null);
-    setNearestGuess(null);
-    setFarthestGuess(null);
+    setNearestGuess(null);  // 重置最近城市对选择
+    setFarthestGuess(null); // 重置最远城市对选择
     
     try {
       addLog('开始新游戏');
@@ -489,6 +497,10 @@ function CityGame() {
   
   // 重新开始游戏
   const resetGame = () => {
+    // 强制清除所有单选按钮的选中状态
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+      radio.checked = false;
+    });
     startGame();
   };
   
@@ -600,80 +612,81 @@ function CityGame() {
   
   // 渲染城市对
   const renderCityPairs = () => {
+    if (!cityPairs.length) return null;
     return (
-      <div style={{
-        ...styles.cityPairsContainer,
-        flexDirection: "column", // 始终使用纵向排列
-        overflowX: "visible",
-      }}>
-        {cityPairs.map((pair, index) => {
-          const isNearest = nearestGuess && pair.cities.every(city => nearestGuess.cities.includes(city));
-          const isFarthest = farthestGuess && pair.cities.every(city => farthestGuess.cities.includes(city));
-          
-          let pairStyle = {...styles.cityPair};
-          
-          if (isNearest || isFarthest) {
-            pairStyle = {...pairStyle, ...styles.cityPairSelected};
-          }
-          
-          if (gameResult) {
-            if (isNearest) {
-              pairStyle = gameResult.nearestCorrect 
-                ? {...pairStyle, ...styles.cityPairCorrect} 
-                : {...pairStyle, ...styles.cityPairIncorrect};
-            }
-            if (isFarthest) {
-              pairStyle = gameResult.farthestCorrect 
-                ? {...pairStyle, ...styles.cityPairCorrect} 
-                : {...pairStyle, ...styles.cityPairIncorrect};
-            }
-          }
-          
-          return (
-            <div 
-              key={index}
-              style={pairStyle}
-              onClick={() => {
-                if (gameResult) return;
-                // 双击处理逻辑
-                if (isNearest) {
-                  setNearestGuess(null);
-                } else if (isFarthest) {
-                  setFarthestGuess(null);
-                } else if (!nearestGuess) {
-                  handleNearestGuess(pair);
-                } else if (!farthestGuess) {
-                  handleFarthestGuess(pair);
-                }
-              }}
-              className="city-pair-card"
-            >
-              <div style={styles.cityPairNames}>
-                <MapPin size={20} style={{marginRight: '8px', color: '#4F46E5'}} />
-                <span>{pair.cities.join(' - ')}</span>
-                {(isNearest || isFarthest) && (
-                  <span style={{
-                    display: 'inline-block',
-                    marginLeft: '10px',
-                    padding: '3px 8px',
-                    borderRadius: '20px',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    backgroundColor: isNearest ? 'rgba(79, 70, 229, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                    color: isNearest ? '#4F46E5' : '#EF4444'
-                  }}>
-                    {isNearest ? '最近' : '最远'}
-                  </span>
-                )}
-              </div>
-              {gameResult && (
-                <div style={styles.cityPairDistance}>
-                  {pair.distance.toFixed(1)} 公里
-                </div>
-              )}
-            </div>
-          );
-        })}
+      <div style={{ ...styles.cityPairsContainer, flexDirection: "column", overflowX: "visible" }}>
+        <div style={{marginBottom: '18px'}}>
+          <div style={{fontWeight: 'bold', color: '#4F46E5', marginBottom: '10px', fontSize: '18px', letterSpacing: '1px'}}>请选择最近的城市对：</div>
+          <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+            {cityPairs.map((pair, idx) => {
+              const isSelected = nearestGuess && pair.cities.every(city => nearestGuess.cities.includes(city));
+              const isDisabled = !!gameResult;
+              return (
+                <label key={"nearest-"+idx} style={{
+                  ...styles.cityPair,
+                  ...(isSelected ? styles.cityPairSelected : {}),
+                  ...(gameResult && isSelected ? (gameResult.nearestCorrect ? styles.cityPairCorrect : styles.cityPairIncorrect) : {}),
+                  opacity: isDisabled && !isSelected ? 0.6 : 1,
+                  pointerEvents: isDisabled ? 'none' : 'auto',
+                  borderWidth: isSelected ? 2 : 1,
+                  borderColor: isSelected ? '#4F46E5' : '#E2E8F0',
+                  background: isSelected ? 'linear-gradient(90deg, #f5f7fa 60%, #e0e7ff 100%)' : 'white',
+                  transition: 'all 0.2s',
+                  boxShadow: isSelected ? '0 4px 16px rgba(79,70,229,0.08)' : styles.cityPair.boxShadow
+                }}>
+                  <input
+                    type="radio"
+                    name="nearestPair"
+                    disabled={isDisabled}
+                    checked={isSelected}
+                    onChange={() => { if (!gameResult) handleNearestGuess(pair); }}
+                    style={{marginRight: '12px', accentColor: '#4F46E5', width: '18px', height: '18px'}}
+                  />
+                  <span style={styles.cityPairNames}>{pair.cities.join(' - ')}</span>
+                  {gameResult && (
+                    <span style={styles.cityPairDistance}>{pair.distance.toFixed(1)} 公里</span>
+                  )}
+                </label>
+              );
+            })}
+          </div>
+        </div>
+        <div>
+          <div style={{fontWeight: 'bold', color: '#EF4444', marginBottom: '10px', fontSize: '18px', letterSpacing: '1px'}}>请选择最远的城市对：</div>
+          <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+            {cityPairs.map((pair, idx) => {
+              const isSelected = farthestGuess && pair.cities.every(city => farthestGuess.cities.includes(city));
+              const isDisabled = !!gameResult;
+              return (
+                <label key={"farthest-"+idx} style={{
+                  ...styles.cityPair,
+                  ...(isSelected ? styles.cityPairSelected : {}),
+                  ...(gameResult && isSelected ? (gameResult.farthestCorrect ? styles.cityPairCorrect : styles.cityPairIncorrect) : {}),
+                  opacity: isDisabled && !isSelected ? 0.6 : 1,
+                  pointerEvents: isDisabled ? 'none' : 'auto',
+                  borderWidth: isSelected ? 2 : 1,
+                  borderColor: isSelected ? '#EF4444' : '#E2E8F0',
+                  background: isSelected ? 'linear-gradient(90deg, #fef2f2 60%, #fee2e2 100%)' : 'white',
+                  transition: 'all 0.2s',
+                  boxShadow: isSelected ? '0 4px 16px rgba(239,68,68,0.08)' : styles.cityPair.boxShadow
+                }}>
+                  <input
+                    type="radio"
+                    name="farthestPair"
+                    disabled={isDisabled}
+                    checked={isSelected}
+                    onChange={() => { if (!gameResult) handleFarthestGuess(pair); }}
+                    style={{marginRight: '12px', accentColor: '#EF4444', width: '18px', height: '18px'}}
+                  />
+                  <span style={styles.cityPairNames}>{pair.cities.join(' - ')}</span>
+                  {gameResult && (
+                    <span style={styles.cityPairDistance}>{pair.distance.toFixed(1)} 公里</span>
+                  )}
+                </label>
+              );
+            })}
+          </div>
+        </div>
       </div>
     );
   };
@@ -729,7 +742,6 @@ function CityGame() {
               {renderMap()}
               
               {renderCityPairs()}
-              {renderGuesses()}
               {renderResult()}
               
               <div style={styles.buttonContainer}>
@@ -862,4 +874,4 @@ function CityGame() {
   );
 }
 
-export default CityGame; 
+export default CityGame;
