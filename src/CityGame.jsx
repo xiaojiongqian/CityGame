@@ -17,330 +17,6 @@ import {
 } from './styles/styleUtils';
 import { gameReducer, initialGameState, GAME_ACTIONS } from './reducers/gameReducer';
 
-const styles = {
-  container: {
-    minHeight: '100vh',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '10px',
-    background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%)',
-    width: '100%',
-    maxWidth: '650px',
-    margin: '0 auto'
-  },
-  gameContainer: {
-    width: '100%',
-    maxWidth: '600px',
-    margin: '0 auto'
-  },
-  header: {
-    marginBottom: '32px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    opacity: 1,
-    transform: 'translateY(0)',
-    padding: '10px',
-  },
-  headerIcon: {
-    color: '#4F46E5',
-    marginBottom: '12px',
-    filter: 'drop-shadow(0 4px 6px rgba(79, 70, 229, 0.2))',
-  },
-  title: {
-    fontSize: '36px',
-    fontWeight: '800',
-    margin: 0,
-    background: 'linear-gradient(45deg, #4F46E5, #6366F1)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    textAlign: 'center',
-    letterSpacing: '-0.5px',
-  },
-  subtitle: {
-    fontSize: '16px',
-    color: '#6B7280',
-    textAlign: 'center',
-    marginTop: '8px',
-  },
-  card: {
-    background: 'white',
-    borderRadius: '16px',
-    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0, 0, 0, 0.03)',
-    padding: '16px',
-    margin: '0 auto 16px',
-    transition: 'all 0.3s ease',
-    border: '1px solid rgba(0, 0, 0, 0.05)',
-    width: '100%',
-    maxWidth: '100%'
-  },
-  description: {
-    fontSize: '18px',
-    lineHeight: 1.6,
-    color: '#4B5563',
-    textAlign: 'center',
-    marginBottom: '32px',
-  },
-  buttonContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  button: {
-    color: 'white',
-    fontWeight: 'bold',
-    padding: '10px 24px',
-    borderRadius: '12px',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)',
-    background: 'linear-gradient(45deg, #4F46E5, #6366F1)',
-    border: 'none',
-    fontSize: '16px',
-    letterSpacing: '0.5px',
-    position: 'relative',
-    overflow: 'hidden',
-    height: '48px',
-    lineHeight: '28px'
-  },
-  buttonHover: {
-    backgroundColor: '#4338CA',
-    transform: 'translateY(-2px)',
-    boxShadow: '0 6px 16px rgba(79, 70, 229, 0.3)',
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-    cursor: 'not-allowed',
-  },
-  map: {
-    width: '100%',
-    height: '350px',
-    borderRadius: '16px',
-    overflow: 'hidden',
-    marginBottom: '20px',
-    background: '#f2f8fc',
-    position: 'relative',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
-    border: '1px solid rgba(0, 0, 0, 0.05)',
-  },
-  cityPairsContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
-    marginBottom: '20px',
-  },
-  cityPair: {
-    padding: '12px 16px',
-    borderRadius: '12px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-    border: '1px solid #E2E8F0',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    backgroundColor: 'white',
-    '&:hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-    },
-  },
-  cityPairSelected: {
-    border: '2px solid #4F46E5',
-    backgroundColor: 'rgba(79, 70, 229, 0.05)',
-    transform: 'translateY(-2px)',
-    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.15)',
-  },
-  cityPairCorrect: {
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    border: '2px solid #10B981',
-    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)',
-  },
-  cityPairIncorrect: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    border: '2px solid #EF4444',
-    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.15)',
-  },
-  cityPairNames: {
-    fontWeight: 'bold',
-    fontSize: '18px',
-    display: 'flex',
-    alignItems: 'center',
-    flex: '1 1 auto',
-    minWidth: 0,
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
-  cityPairIcon: {
-    marginRight: '8px',
-    color: '#4F46E5',
-  },
-  cityPairDistance: {
-    color: '#6B7280',
-    fontSize: '16px',
-    fontWeight: '600',
-    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-    padding: '4px 10px',
-    borderRadius: '8px',
-  },
-  guessContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '28px',
-    gap: '16px',
-  },
-  guessBox: {
-    flex: 1,
-    padding: '20px',
-    borderRadius: '12px',
-    border: '1px solid #E2E8F0',
-    textAlign: 'center',
-    background: 'white',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-    transition: 'all 0.3s ease',
-  },
-  guessBoxFilled: {
-    background: 'rgba(79, 70, 229, 0.05)',
-    border: '1px solid #4F46E5',
-    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.1)',
-  },
-  guessType: {
-    fontWeight: 'bold',
-    marginBottom: '10px',
-    fontSize: '16px',
-    color: '#4F46E5',
-  },
-  guessValue: {
-    color: '#4B5563',
-    fontSize: '18px',
-    fontWeight: '500',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
-  resultContainer: {
-    padding: '24px',
-    borderRadius: '12px',
-    marginBottom: '28px',
-    textAlign: 'center',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
-    animation: 'fadeIn 0.5s ease',
-  },
-  resultSuccess: {
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    border: '1px solid #10B981',
-  },
-  resultError: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    border: '1px solid #EF4444',
-  },
-  resultText: {
-    fontWeight: 'bold',
-    fontSize: '22px',
-    marginBottom: '12px',
-  },
-  resultDetails: {
-    fontSize: '16px',
-    color: '#4B5563',
-    lineHeight: '1.6',
-  },
-  loadingContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '60px',
-  },
-  loadingText: {
-    fontSize: '18px',
-    fontWeight: 'bold',
-    marginTop: '16px',
-    color: '#4B5563',
-    animation: 'pulse 2s infinite',
-  },
-  loadingSpinner: {
-    borderRadius: '50%',
-    width: '48px',
-    height: '48px',
-    border: '4px solid rgba(79, 70, 229, 0.1)',
-    borderTopColor: '#4F46E5',
-    animation: 'spin 1s linear infinite',
-    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)',
-  },
-  debugPanel: {
-    marginTop: '32px',
-    padding: '20px',
-    borderRadius: '12px',
-    backgroundColor: '#1F2937',
-    color: '#F3F4F6',
-    fontFamily: 'monospace',
-    fontSize: '14px',
-    whiteSpace: 'pre-wrap',
-    overflowX: 'auto',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
-  },
-  debugHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '12px',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-    paddingBottom: '8px',
-  },
-  debugTitle: {
-    fontWeight: 'bold',
-    fontSize: '16px',
-    color: '#F3F4F6',
-  },
-  debugButton: {
-    backgroundColor: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    color: '#94A3B8',
-    transition: 'color 0.2s ease',
-    '&:hover': {
-      color: 'white',
-    },
-  },
-  utilityButton: {
-    color: '#94A3B8',
-    marginRight: '12px',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    transition: 'all 0.2s ease',
-    '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      color: 'white',
-    },
-  },
-  toggleButton: {
-    color: 'white',
-    cursor: 'pointer',
-  },
-  guessPrompt: {
-    flex: 1,
-    padding: '16px',
-    borderRadius: '12px',
-    border: 'none',
-    background: 'transparent',
-    color: '#94A3B8',
-    fontStyle: 'italic',
-    textAlign: 'center',
-    cursor: 'pointer',
-  },
-  footer: {
-    marginTop: '20px',
-    textAlign: 'center',
-    color: '#9CA3AF',
-    fontSize: '14px',
-  },
-};
-
 function CityGame() {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -362,6 +38,331 @@ function CityGame() {
     logs, 
     debugVisible 
   } = state;
+  
+  // 定义样式
+  const styles = useMemo(() => ({
+    container: {
+      minHeight: '100vh',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: isMobile ? '0' : '10px',
+      background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%)',
+      width: '100%',
+      maxWidth: isMobile ? '100%' : '650px',
+      margin: '0 auto'
+    },
+    gameContainer: {
+      width: '100%',
+      maxWidth: isMobile ? '100%' : '600px',
+      margin: '0 auto'
+    },
+    header: {
+      marginBottom: '32px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      opacity: 1,
+      transform: 'translateY(0)',
+      padding: '10px',
+    },
+    headerIcon: {
+      color: '#4F46E5',
+      marginBottom: '12px',
+      filter: 'drop-shadow(0 4px 6px rgba(79, 70, 229, 0.2))',
+    },
+    title: {
+      fontSize: '36px',
+      fontWeight: '800',
+      margin: 0,
+      background: 'linear-gradient(45deg, #4F46E5, #6366F1)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      textAlign: 'center',
+      letterSpacing: '-0.5px',
+    },
+    subtitle: {
+      fontSize: '16px',
+      color: '#6B7280',
+      textAlign: 'center',
+      marginTop: '8px',
+    },
+    card: {
+      background: 'white',
+      borderRadius: isMobile ? '12px' : '16px',
+      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0, 0, 0, 0.03)',
+      padding: isMobile ? '12px' : '16px',
+      margin: isMobile ? '0 auto 12px' : '0 auto 16px',
+      transition: 'all 0.3s ease',
+      border: isMobile ? 'none' : '1px solid rgba(0, 0, 0, 0.05)',
+      width: '100%',
+      maxWidth: '100%'
+    },
+    description: {
+      fontSize: '18px',
+      lineHeight: 1.6,
+      color: '#4B5563',
+      textAlign: 'center',
+      marginBottom: '32px',
+    },
+    buttonContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+    },
+    button: {
+      color: 'white',
+      fontWeight: 'bold',
+      padding: '10px 24px',
+      borderRadius: '12px',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)',
+      background: 'linear-gradient(45deg, #4F46E5, #6366F1)',
+      border: 'none',
+      fontSize: '16px',
+      letterSpacing: '0.5px',
+      position: 'relative',
+      overflow: 'hidden',
+      height: '48px',
+      lineHeight: '28px'
+    },
+    buttonHover: {
+      backgroundColor: '#4338CA',
+      transform: 'translateY(-2px)',
+      boxShadow: '0 6px 16px rgba(79, 70, 229, 0.3)',
+    },
+    buttonDisabled: {
+      opacity: 0.7,
+      cursor: 'not-allowed',
+    },
+    map: {
+      width: '100%',
+      height: '350px',
+      borderRadius: '16px',
+      overflow: 'hidden',
+      marginBottom: '20px',
+      background: '#f2f8fc',
+      position: 'relative',
+      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
+      border: '1px solid rgba(0, 0, 0, 0.05)',
+    },
+    cityPairsContainer: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '12px',
+      marginBottom: '20px',
+    },
+    cityPair: {
+      padding: '12px 16px',
+      borderRadius: '12px',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+      border: '1px solid #E2E8F0',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      backgroundColor: 'white',
+      '&:hover': {
+        transform: 'translateY(-2px)',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+      },
+    },
+    cityPairSelected: {
+      border: '2px solid #4F46E5',
+      backgroundColor: 'rgba(79, 70, 229, 0.05)',
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 12px rgba(79, 70, 229, 0.15)',
+    },
+    cityPairCorrect: {
+      backgroundColor: 'rgba(16, 185, 129, 0.1)',
+      border: '2px solid #10B981',
+      boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)',
+    },
+    cityPairIncorrect: {
+      backgroundColor: 'rgba(239, 68, 68, 0.1)',
+      border: '2px solid #EF4444',
+      boxShadow: '0 4px 12px rgba(239, 68, 68, 0.15)',
+    },
+    cityPairNames: {
+      fontWeight: 'bold',
+      fontSize: '18px',
+      display: 'flex',
+      alignItems: 'center',
+      flex: '1 1 auto',
+      minWidth: 0,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    },
+    cityPairIcon: {
+      marginRight: '8px',
+      color: '#4F46E5',
+    },
+    cityPairDistance: {
+      color: '#6B7280',
+      fontSize: '16px',
+      fontWeight: '600',
+      backgroundColor: 'rgba(79, 70, 229, 0.1)',
+      padding: '4px 10px',
+      borderRadius: '8px',
+    },
+    guessContainer: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginBottom: '28px',
+      gap: '16px',
+    },
+    guessBox: {
+      flex: 1,
+      padding: '20px',
+      borderRadius: '12px',
+      border: '1px solid #E2E8F0',
+      textAlign: 'center',
+      background: 'white',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+      transition: 'all 0.3s ease',
+    },
+    guessBoxFilled: {
+      background: 'rgba(79, 70, 229, 0.05)',
+      border: '1px solid #4F46E5',
+      boxShadow: '0 4px 12px rgba(79, 70, 229, 0.1)',
+    },
+    guessType: {
+      fontWeight: 'bold',
+      marginBottom: '10px',
+      fontSize: '16px',
+      color: '#4F46E5',
+    },
+    guessValue: {
+      color: '#4B5563',
+      fontSize: '18px',
+      fontWeight: '500',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    },
+    resultContainer: {
+      padding: '24px',
+      borderRadius: '12px',
+      marginBottom: '28px',
+      textAlign: 'center',
+      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
+      animation: 'fadeIn 0.5s ease',
+    },
+    resultSuccess: {
+      backgroundColor: 'rgba(16, 185, 129, 0.1)',
+      border: '1px solid #10B981',
+    },
+    resultError: {
+      backgroundColor: 'rgba(239, 68, 68, 0.1)',
+      border: '1px solid #EF4444',
+    },
+    resultText: {
+      fontWeight: 'bold',
+      fontSize: '22px',
+      marginBottom: '12px',
+    },
+    resultDetails: {
+      fontSize: '16px',
+      color: '#4B5563',
+      lineHeight: '1.6',
+    },
+    loadingContainer: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '60px',
+    },
+    loadingText: {
+      fontSize: '18px',
+      fontWeight: 'bold',
+      marginTop: '16px',
+      color: '#4B5563',
+      animation: 'pulse 2s infinite',
+    },
+    loadingSpinner: {
+      borderRadius: '50%',
+      width: '48px',
+      height: '48px',
+      border: '4px solid rgba(79, 70, 229, 0.1)',
+      borderTopColor: '#4F46E5',
+      animation: 'spin 1s linear infinite',
+      boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)',
+    },
+    debugPanel: {
+      marginTop: '32px',
+      padding: '20px',
+      borderRadius: '12px',
+      backgroundColor: '#1F2937',
+      color: '#F3F4F6',
+      fontFamily: 'monospace',
+      fontSize: '14px',
+      whiteSpace: 'pre-wrap',
+      overflowX: 'auto',
+      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
+    },
+    debugHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginBottom: '12px',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+      paddingBottom: '8px',
+    },
+    debugTitle: {
+      fontWeight: 'bold',
+      fontSize: '16px',
+      color: '#F3F4F6',
+    },
+    debugButton: {
+      backgroundColor: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      color: '#94A3B8',
+      transition: 'color 0.2s ease',
+      '&:hover': {
+        color: 'white',
+      },
+    },
+    utilityButton: {
+      color: '#94A3B8',
+      marginRight: '12px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      padding: '4px 8px',
+      borderRadius: '4px',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      transition: 'all 0.2s ease',
+      '&:hover': {
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        color: 'white',
+      },
+    },
+    toggleButton: {
+      color: 'white',
+      cursor: 'pointer',
+    },
+    guessPrompt: {
+      flex: 1,
+      padding: '16px',
+      borderRadius: '12px',
+      border: 'none',
+      background: 'transparent',
+      color: '#94A3B8',
+      fontStyle: 'italic',
+      textAlign: 'center',
+      cursor: 'pointer',
+    },
+    footer: {
+      marginTop: '20px',
+      textAlign: 'center',
+      color: '#9CA3AF',
+      fontSize: '14px',
+    },
+  }), [isMobile]);
   
   // 使用useCallback优化事件处理函数
   const addLog = useCallback((message, type = 'info') => {
@@ -561,21 +562,36 @@ function CityGame() {
         </div>
       </div>
     );
-  }, [cities, gameResult, isMobile]);
+  }, [cities, gameResult, isMobile, styles]);
   
-  const gameContainerStyle = useMemo(() => 
-    withTransition(styles.gameContainer),
-  []);
+  // 使用useMemo优化容器样式以适应移动端
+  const containerStyle = useMemo(() => {
+    return {
+      ...styles.container,
+    };
+  }, [styles]);
+  
+  const gameContainerStyle = useMemo(() => {
+    return withTransition({
+      ...styles.gameContainer,
+    });
+  }, [styles]);
+  
+  const cardStyle = useMemo(() => {
+    return {
+      ...styles.card,
+    };
+  }, [styles]);
   
   return (
-    <div style={styles.container}>
+    <div style={containerStyle}>
       <div style={gameContainerStyle}>
         <GameHeader
           isMobile={isMobile}
           styles={styles}
         />
         
-        <div style={styles.card}>
+        <div style={cardStyle}>
           {isLoading ? (
             renderLoading
           ) : (
@@ -583,7 +599,10 @@ function CityGame() {
               {renderMap}
               
               {cities.length > 0 && (
-                <div style={{...styles.card, padding: '20px'}}>
+                <div style={{
+                  ...cardStyle, 
+                  padding: isMobile ? '12px' : '20px'
+                }}>
                   <GameContent 
                     cityPairs={cityPairs} 
                     nearestGuess={nearestGuess} 
