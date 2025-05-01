@@ -3,4 +3,62 @@ description:
 globs: 
 alwaysApply: true
 ---
-After saved the source code, run the unit test auto.
+# 版本规则文档
+
+## 环境要求
+
+- Node.js: v18.x 到 v20.17.0 (推荐 v20.17.0)
+- NPM: v8.x 或更高 (推荐 v10.8.2)
+
+## 核心依赖
+
+### React 相关
+- react: ^18.2.0
+- react-dom: ^18.2.0
+- react-scripts: 5.0.1
+- @types/react: ^18.2.37
+- typescript: ^4.9.5
+
+### 测试库
+- @testing-library/dom: ^9.3.3
+- @testing-library/jest-dom: ^5.17.0
+- @testing-library/react: ^14.1.2
+- @testing-library/user-event: ^13.5.0
+
+### UI 和功能库
+- framer-motion: ^10.16.5
+- leaflet: ^1.9.4
+- lucide-react: ^0.292.0
+- axios: ^1.6.2
+- web-vitals: ^2.1.4
+
+### 开发工具
+- gh-pages: ^6.0.0
+
+## 构建和部署配置
+
+### NPM 脚本
+- 开发环境: `npm start`
+- 生产环境: `npm run start:prod` (使用增加的内存限制)
+- 构建: `npm run build` 或 `npm run build:prod` (使用 `--omit=dev` 和增加的内存限制)
+
+### 配置文件说明
+- **package.json**: 包含Node和NPM版本限制，以及npm配置设置
+- **Procfile**: Railway等云平台需要的启动文件
+- **config/platforms/railway.json**: Railway平台特定的详细配置
+
+## 注意事项
+
+1. 不要混用不同 React 主版本 (例如 React 18 和 React 19)
+2. 确保 TypeScript 类型定义与 React 版本匹配
+3. 更新依赖时，应同时更新相关联的库，以避免版本不兼容
+4. 在 Railway 部署时，请确保分配足够的内存资源（至少 2GB）
+
+## 版本更新策略
+
+当需要更新依赖版本时:
+1. 首先在开发环境测试更新
+2. 运行完整的测试套件确保兼容性
+3. 更新本文档中相应的版本信息
+4. 更新package.json中的engines字段以反映新版本
+5. 提交代码并重新部署 
