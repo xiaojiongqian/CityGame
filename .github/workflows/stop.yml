@@ -2,15 +2,18 @@ name: Stop Railway Service
 
 on:
   schedule:
-    - cron: '0 16 * * *' # UTC+0 时间，等于北京时间 24:00（次日 0 点）
-  workflow_dispatch:     # 手动触发功能（可选）
+    - cron: '0 16 * * *'  # UTC+0 -> 北京时间 24:00
+  workflow_dispatch:
 
 jobs:
   stop:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: railwayapp/cli-action@v1
-        with:
-          command: down
+      - name: 安装 Railway CLI
+        run: npm install -g railway
+
+      - name: 停止服务
+        run: railway down
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
