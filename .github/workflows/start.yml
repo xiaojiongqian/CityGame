@@ -2,7 +2,7 @@ name: Start Railway Service
 
 on:
   schedule:
-    - cron: '0 2 * * *' # UTC+0 时间，等于北京时间 10:00
+    - cron: '0 4 * * *' # UTC+0 时间，等于北京时间 12:00
   workflow_dispatch:     # 手动触发功能（可选）
 
 jobs:
