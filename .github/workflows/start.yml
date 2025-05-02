@@ -2,15 +2,18 @@ name: Start Railway Service
 
 on:
   schedule:
-    - cron: '0 4 * * *' # UTC+0 时间，等于北京时间 12:00
-  workflow_dispatch:     # 手动触发功能（可选）
+    - cron: '0 2 * * *'  # UTC+0 -> 北京时间 10:00
+  workflow_dispatch:
 
 jobs:
   start:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: railwayapp/cli-action@v1
-        with:
-          command: up
+      - name: 安装 Railway CLI
+        run: npm install -g railway
+
+      - name: 启动服务
+        run: railway up
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
